@@ -36,7 +36,14 @@ namespace HelloOpenTK
 
         Vector3 front = new Vector3(0.0f, 0.0f, 1.0f);
         Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
+        float pitch = 0.0f;
+        float yaw = 90.0f;
+        float cameraSensitivity = 0.1f;
+
         float speed = 20.0f;
+
+        Vector2 lastMousePos;
+        bool firstMove = true;
 
         public MyGameWindow(int width, int height, string title) : base(GameWindowSettings.Default, new NativeWindowSettings() { Size = (width, height), Title = title }) 
         { 
@@ -56,31 +63,62 @@ namespace HelloOpenTK
                 Close();
             }
 
-            KeyboardState input = KeyboardState;
-            if (input.IsKeyDown(Keys.W))
+            KeyboardState keyboard = KeyboardState;
+            if (keyboard.IsKeyDown(Keys.W))
             {
                 position += front * speed * (float)e.Time; //Forward 
             }
-            if (input.IsKeyDown(Keys.S))
+            if (keyboard.IsKeyDown(Keys.S))
             {
                 position -= front * speed * (float)e.Time; //Backwards
             }
-            if (input.IsKeyDown(Keys.A))
+            if (keyboard.IsKeyDown(Keys.A))
             {
                 position -= Vector3.Normalize(Vector3.Cross(front, up)) * speed * (float)e.Time; //Left
             }
-            if (input.IsKeyDown(Keys.D))
+            if (keyboard.IsKeyDown(Keys.D))
             {
                 position += Vector3.Normalize(Vector3.Cross(front, up)) * speed * (float)e.Time; //Right
             }
-            if (input.IsKeyDown(Keys.Space))
+            if (keyboard.IsKeyDown(Keys.Space))
             {
                 position += up * speed * (float)e.Time; //Up 
             }
-            if (input.IsKeyDown(Keys.LeftShift))
+            if (keyboard.IsKeyDown(Keys.LeftShift))
             {
                 position -= up * speed * (float)e.Time; //Down
             }
+        }
+
+        protected override void OnMouseMove(MouseMoveEventArgs e)
+        {
+            MouseState mouse = MouseState;
+            if (mouse.IsButtonDown(MouseButton.Right) == false)
+            {
+                return;
+            }
+
+            float deltaX = e.DeltaX;
+            float deltaY = e.DeltaY;
+            if (pitch > 89.0f)
+            {
+                pitch = 89.0f;
+            }
+            else if (pitch < -89.0f)
+            {
+                pitch = -89.0f;
+            }
+            else
+            {
+                pitch -= deltaY * cameraSensitivity;
+            }
+
+            yaw += deltaX * cameraSensitivity;
+
+            front.X = (float)Math.Cos(MathHelper.DegreesToRadians(pitch)) * (float)Math.Cos(MathHelper.DegreesToRadians(yaw));
+            front.Y = (float)Math.Sin(MathHelper.DegreesToRadians(pitch));
+            front.Z = (float)Math.Cos(MathHelper.DegreesToRadians(pitch)) * (float)Math.Sin(MathHelper.DegreesToRadians(yaw));
+            front = Vector3.Normalize(front);
         }
 
         protected override void OnLoad()
