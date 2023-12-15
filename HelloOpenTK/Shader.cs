@@ -1,4 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -89,6 +90,13 @@ namespace HelloOpenTK
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        internal void SetMatrix4(string name, Matrix4 value)
+        {
+            GL.UseProgram(Handle);
+            int location = GL.GetUniformLocation(Handle, name);
+            GL.UniformMatrix4(location, true, ref value);
         }
     }
 }
